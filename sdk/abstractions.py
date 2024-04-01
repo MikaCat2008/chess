@@ -62,16 +62,24 @@ class BasePlayerType(ABC):
 
 
 class BaseGameManagerType(ABC):
-    games: dict[int, BaseGameType]
+    games: list[BaseGameType]
 
     @abstractmethod
     def create_game(self) -> BaseGameType:
         ...
+    
+    @abstractmethod
+    def get_game_by_id(self, id: int) -> BaseGameType:
+        ...
 
 
 class BasePlayerManagerType(ABC):
-    players: dict[int, BasePlayerType]
+    players: list[BasePlayerType]
 
     @abstractmethod
     def create_player(self, id: int) -> BasePlayerType:
+        ...
+
+    @abstractmethod
+    def get_player_by_id(self, id: int) -> BasePlayerType:
         ...

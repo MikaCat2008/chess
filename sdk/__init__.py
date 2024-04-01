@@ -10,6 +10,7 @@ class BaseGame(BaseGameType):
     def __init__(self, id: int) -> None:
         self.id = id
         self.side = None
+        self.board = None
         self.players = []
 
     def join(self, player: BasePlayerType) -> None:
@@ -33,12 +34,14 @@ class BaseGame(BaseGameType):
         
         return piece_side, piece_id, pos
 
-    def process_piece(self, piece: Piece, opos: Pos, i: int, line: list[Pos], enemy: bool) -> bool:
+    def process_piece(
+        self, piece: Piece, opos: Pos, i: int, line: list[Pos], enemy: bool, kill: bool
+    ) -> bool:
         piece_side, _, piece_pos = piece
         x, y = piece_pos
         ox, oy = opos
 
-        if not piece_side:
+        if piece_side:
             oy *= -1
 
         ix, iy = x + ox * i, y + oy * i
@@ -50,32 +53,34 @@ class BaseGame(BaseGameType):
         ipiece_side = ipiece[0]
 
         if ipiece_side != -1:
-            if ipiece_side != piece_side and enemy:
+            if ipiece_side != piece_side and kill:
                 line.append((ix, iy))
             
             return False
         if enemy:
-            return True
-
+            return True    
+            
         line.append((ix, iy))
 
         return True
 
-    def create_lines(
-        self, piece: Piece, dirs: list[Pos], limit: int, attack_poss: list[Pos] | None = None
-    ) -> list[Pos]:        
+    def create_lines(self, piece: Piece, dirs: list[Pos], limit: int, kill: bool = True) -> list[Pos]:        
         line = []
 
         for dir in dirs:
             for i in range(1, limit + 1):
-                if not self.process_piece(piece, dir, i, line, attack_poss is None):
+                if not self.process_piece(piece, dir, i, line, False, kill):
                     break
 
-        if attack_poss:
-            for apos in attack_poss:
-                self.process_piece(piece, apos, 1, line, True)
-
         return line
+    
+    def create_pawn_attacks(self, piece: Piece) -> list[Pos]:
+        poss = []
+
+        for pos in [(-1, 1), (1, 1)]:
+            self.process_piece(piece, pos, 1, poss, True, True)
+
+        return poss
 
     def get_moves(self, piece: Piece) -> list[Pos]:
         piece_side, piece_id, piece_pos = piece
@@ -84,12 +89,10 @@ class BaseGame(BaseGameType):
         if piece_id == 0:
             return self.create_lines(piece, [
                 ( 0,  1)
-            ], (y == 1 if piece_side else y == 6) + 1, [
-                (-1,  1), ( 1,  1)
-            ])
+            ], (y == 6 if piece_side else y == 1) + 1, False) + self.create_pawn_attacks(piece)
         elif piece_id == 1:
             return self.create_lines(piece, [
-                ( 0,  1), ( 1,  0), ( 0, -1), (-1, 0)
+                ( 0,  1), ( 1,  0), ( 0, -1), (-1,  0)
             ], 7)
         elif piece_id == 2:
             return self.create_lines(piece, [
@@ -109,7 +112,7 @@ class BaseGame(BaseGameType):
             return self.create_lines(piece, [
                 ( 0,  1), ( 1,  1), ( 1,  0), ( 1, -1),
                 ( 0, -1), (-1, -1), (-1,  0), (-1,  1)
-            ], 7)
+            ], 1)
 
     def move(self, from_pos: Pos, to_pos: Pos) -> MoveData:
         fx, fy = from_pos
@@ -133,24 +136,29 @@ class BaseGame(BaseGameType):
         if from_piece[0] == to_piece[0]:
             raise MoveError("Sides can't be same.")
 
-        if to_pos not in self.get_moves(from_piece):            
+        if to_pos not in self.get_moves(from_piece):
+            print(from_piece, self.get_moves(from_piece))
+
             raise MoveError(f"Can't move from x={fx}, y={fy} to x={tx}, y={ty}.")
 
         self.side = not self.side
         self.board[ty][tx] = self.board[fy][fx]
         self.board[fy][fx] = 0
 
-    def create_board(self) -> list[list[int]]:
-        self.board = [
-            [ 8,  9, 10, 11, 12, 10,  9,  8],
-            [ 7,  7,  7,  7,  7,  7,  7,  7],
-            [ 0,  0,  0,  0,  0,  0,  0,  0],
-            [ 0,  0,  0,  0,  0,  0,  0,  0],
-            [ 0,  0,  0,  0,  0,  0,  0,  0],
-            [ 0,  0,  0,  0,  0,  0,  0,  0],
-            [ 1,  1,  1,  1,  1,  1,  1,  1],
-            [ 2,  3,  4,  5,  6,  4,  3,  2]
-        ]
+    def create_board(self, board: list[list[int]] | None = None) -> list[list[int]]:
+        if board:
+            self.board = board
+        else:
+            self.board = [
+                [ 2,  3,  4,  5,  6,  4,  3,  2],
+                [ 1,  1,  1,  1,  1,  1,  1,  1],
+                [ 0,  0,  0,  0,  0,  0,  0,  0],
+                [ 0,  0,  0,  0,  0,  0,  0,  0],
+                [ 2,  0,  0,  0,  0,  0,  0,  0],
+                [ 0,  0,  0,  0,  0,  0,  0,  0],
+                [ 7,  7,  7,  7,  7,  7,  7,  7],
+                [ 0,  9, 10, 11, 12, 10,  9,  8]
+            ]
 
         return self.board
 
@@ -166,9 +174,15 @@ class BasePlayer(BasePlayerType):
 
 class BaseGameManager(BaseGameManagerType):
     def __init__(self) -> None:
-        self.games = {}
+        self.games = []
+
+    def get_game_by_id(self, id: int) -> BaseGameType:
+        return [game for game in self.games if game.id == id][0]
 
 
 class BasePlayerManager(BasePlayerManagerType):
     def __init__(self) -> None:
-        self.players = {}
+        self.players = []
+
+    def get_player_by_id(self, id: int) -> BasePlayerType:
+        return [player for player in self.players if player.id == id][0]

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="game-board">
+        {% for y in range(8) %}
+            {% for x in range(8) %}
+                <div class="game-cell {{ 'white' if (y % 2 and x % 2) or not (y % 2 or x % 2) else 'black' }}"></div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    
+    <script>
+        let player_id = {{ player_id }};
+    </script>
+    <script src="static/js/game.js"></script>
+{% endblock %}

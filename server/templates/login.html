@@ -1,0 +1,25 @@
+{% extends 'auth.html' %}
+
+{% block content %}
+    Login form
+    <div>
+        Username:
+        <input type="text" id="username">
+    </div>
+    <div>
+        Password:
+        <input type="text" id="password">
+    </div>
+    <input type="submit" onclick="login(
+        usernameInput.value, passwordInput.value
+    )" value="Login">
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script>
+        let usernameInput = document.querySelector("#username");
+        let passwordInput = document.querySelector("#password");
+    </script>
+{% endblock %}

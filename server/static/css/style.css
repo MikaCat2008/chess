@@ -1,0 +1,82 @@
+body {
+    width: 100%;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    background-color: #e3e3e3;
+
+    margin: 0px;
+    padding: 0px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+
+    margin: auto;
+}
+
+.game-board {
+    position: relative;
+
+    width: 90vmin;
+    height: 90vmin;
+
+    display: flex;
+    flex-wrap: wrap;
+
+    background-color: black;
+    border: 2px solid rgb(0, 0, 0);
+
+    overflow: hidden;
+}
+
+.game-cell {
+    width: 12.5%;
+    height: 12.5%;
+
+    overflow: hidden;
+}
+
+.game-cell img {
+    width: 100%;
+    height: 100%;
+}
+
+.white {
+    background-color: rgb(166, 111, 1);
+}
+
+.black {
+    background-color: rgb(13, 13, 13);
+}
+
+.place img {
+    background-color: rgba(43, 255, 0, 0.354);
+}
+
+.place::after {
+    content: "";
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    background-color: rgba(43, 255, 0, 0.354);
+}
+
+.selected img {
+    background-color: rgba(255, 0, 0, 0.468);
+}
+
+.selected::after {
+    content: "";
+    display: block;
+
+    width: 100%;
+    height: 100%;
+    
+    background-color: rgba(255, 0, 0, 0.313);
+}
