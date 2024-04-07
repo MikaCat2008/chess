@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="board">
+        <div class="pieces"></div>
+        <div class="cells"></div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    
+    <script>
+        let gameId = {{ game_id }}, playerId = {{ player_id }};
+    </script>
+    <script src="static/js/chess/api.js"></script>
+    <script src="static/js/chess/game.js"></script>
+    <script src="static/js/chess/piece.js"></script>
+    <script src="static/js/chess/board.js"></script>
+    <script src="static/js/chess/player.js"></script>
+    <script src="static/js/chess/controllers/chess_controller.js"></script>
+    <script src="static/js/chess/controllers/listeners_controller.js"></script>
+    <script src="static/js/chess/controllers/handlers_controller.js"></script>
+    <script src="static/js/chess/controllers/network_controller.js"></script>
+    <script src="static/js/chess/controller.js"></script>
+{% endblock %}

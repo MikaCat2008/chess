@@ -11,13 +11,17 @@ class BaseGame(BaseGameType):
         self.id = id
         self.side = None
         self.board = None
+        self.started = False
         self.players = []
 
     def join(self, player: BasePlayerType) -> None:
+        player.game = self
+        
         self.players.append(player)
 
     def start(self) -> None:
         self.side = False
+        self.started = True
 
         self.create_board()
 
@@ -154,10 +158,10 @@ class BaseGame(BaseGameType):
                 [ 1,  1,  1,  1,  1,  1,  1,  1],
                 [ 0,  0,  0,  0,  0,  0,  0,  0],
                 [ 0,  0,  0,  0,  0,  0,  0,  0],
-                [ 2,  0,  0,  0,  0,  0,  0,  0],
+                [ 0,  0,  0,  0,  0,  0,  0,  0],
                 [ 0,  0,  0,  0,  0,  0,  0,  0],
                 [ 7,  7,  7,  7,  7,  7,  7,  7],
-                [ 0,  9, 10, 11, 12, 10,  9,  8]
+                [ 8,  9, 10, 11, 12, 10,  9,  8]
             ]
 
         return self.board

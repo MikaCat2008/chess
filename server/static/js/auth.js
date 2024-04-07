@@ -1,5 +1,5 @@
 async function login(username, password) {
-    await api("login", {
+    await Api_request("login", {
         username: username,
         password: password
     }).then(response => {
@@ -11,7 +11,7 @@ async function login(username, password) {
 
 
 async function register(username, password) {
-    await api("register", {
+    await Api_request("register", {
         username: username,
         password: password
     }).then(response => {

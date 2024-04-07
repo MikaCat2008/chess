@@ -14,10 +14,28 @@ player_manager: PlayerManagerType = None
 
 
 def index() -> f.Response:
-    return f.render_template(
-        "index.html", 
-        player_id=player_manager.get_player_by_username(f.request.cookies["username"]).id
-    )
+    player = player_manager.get_player_by_username(f.request.cookies["username"])
+
+    if player.game:
+        return f.redirect("/chess")
+    else:    
+        return f.render_template(
+            "index.html",
+            player_id = player.id
+        )
+
+
+def chess() -> f.Response:
+    player = player_manager.get_player_by_username(f.request.cookies["username"])
+
+    if player.game:
+        return f.render_template(
+            "chess.html", 
+            game_id = player.game.id,
+            player_id = player.id,
+        )
+    else:
+        return f.redirect("/")
 
 
 def login() -> f.Response:
@@ -51,12 +69,41 @@ def _register() -> f.Response:
     
     if username not in auths:    
         auths[username] = password
+        player_manager.create_player(username)
     
         return f.redirect("/login")
     else:
         return f.jsonify({
             "status": "Register failed."
         })
+
+
+def get_games() -> f.Response:
+    return f.jsonify({
+        "status": "ok",
+        "data": {
+            "games": [{
+                "id": game.id,
+                "players": [{
+                    "id": player.id,
+                    "username": player.username
+                } for player in game.players]
+            } for game in game_manager.games]
+        }
+    })
+
+
+def load_game() -> f.Response:
+    game_id = int(f.request.args["game_id"])
+    
+    game = game_manager.get_game_by_id(game_id)
+
+    return f.jsonify({
+        "status": "ok",
+        "data": {
+            "game": game.to_json()
+        }
+    })
 
 
 def create_game() -> f.Response:
@@ -77,7 +124,8 @@ def join_game() -> f.Response:
     game = game_manager.get_game_by_id(game_id)
     player = player_manager.get_player_by_id(player_id)
 
-    game.join(player)
+    if player not in game.players:
+        game.join(player)
 
     return f.jsonify({
         "status": "ok",
@@ -110,19 +158,6 @@ def game_move() -> f.Response:
     })
 
 
-def load_game() -> f.Response:
-    game_id = int(f.request.args["game_id"])
-    
-    game = game_manager.get_game_by_id(game_id)
-
-    return f.jsonify({
-        "status": "ok",
-        "data": {
-            "game": game.to_json()
-        }
-    })
-
-
 def get_updates() -> f.Response:
     player_id = int(f.request.args["player_id"])
     
@@ -141,7 +176,7 @@ def check_auth(username: str, password: str) -> bool:
 def check_auth_cookies(cookies: dict) -> bool:
     username = cookies.get("username")
     password = cookies.get("password")
-    
+
     return check_auth(username, password)
 
 
@@ -170,10 +205,12 @@ def init(app: f.Flask, _game_manager: GameManagerType, _player_manager: PlayerMa
     app.route("/api/login")(_login)
     app.route("/api/register")(_register)
     auth_route(app, "/")(index)
+    auth_route(app, "/chess")(chess)
+    auth_route(app, "/api/get_games")(get_games)
+    auth_route(app, "/api/load_game")(load_game)
     auth_route(app, "/api/create_game")(create_game)
     auth_route(app, "/api/join_game")(join_game)
     auth_route(app, "/api/game_move")(game_move)
-    auth_route(app, "/api/load_game")(load_game)
     auth_route(app, "/api/get_updates")(get_updates)
 
     for username in auths:

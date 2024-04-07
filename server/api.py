@@ -27,7 +27,7 @@ class Api:
         })
 
     def game_started_event(self, player: PlayerType, game: GameType) -> None:
-        self.emit(player, "game_start", {
+        self.emit(player, "game_started", {
             "game": game.to_json()
         })
 

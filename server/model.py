@@ -37,6 +37,7 @@ class Game(BaseGame, GameType):
             "id": self.id,
             "side": self.side,
             "board": self.board,
+            "started": self.started,
             "players": [player.to_json() for player in self.players]
         }
 
@@ -77,4 +78,9 @@ class PlayerManager(BasePlayerManager, PlayerManagerType):
         return super().get_player_by_id(id)
 
     def get_player_by_username(self, username: str) -> PlayerType:
-        return [player for player in self.players if player.username == username][0]
+        player = [player for player in self.players if player.username == username]
+        
+        if len(player) == 1:
+            return player[0]
+        else:
+            return None

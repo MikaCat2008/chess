@@ -11,6 +11,7 @@ class BaseGameType(ABC):
     id: int
     side: bool
     board: list[list[int]]
+    started: bool
     players: list[BasePlayerType]
 
     @abstractmethod

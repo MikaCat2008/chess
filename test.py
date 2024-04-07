@@ -7,12 +7,12 @@ class TestGameLogic(unittest.TestCase):
     def test_pawn_moves(self) -> None:
         game = BaseGame(0)
         game.create_board([
-            [ 0,  0,  1,  0,  0,  0,  0,  0],
-            [ 1,  7,  0,  7,  0,  0,  0,  0],
+            [ 0,  0,  1,  1,  0,  0,  0,  0],
+            [ 1,  7,  0,  7,  7,  0,  0,  0],
             [ 0,  1,  0,  0,  0,  0,  0,  0],
             [ 0,  0,  0,  0,  0,  0,  0,  0],
-            [ 0,  0,  0,  0,  0,  0,  0,  0],
-            [ 0,  0,  0,  0,  0,  0,  0,  0],
+            [ 1,  1,  0,  0,  0,  0,  0,  0],
+            [ 7,  7,  0,  0,  0,  0,  0,  0],
             [ 0,  0,  0,  0,  0,  0,  0,  0],
             [ 0,  0,  0,  0,  0,  0,  0,  0]
         ])
@@ -26,7 +26,13 @@ class TestGameLogic(unittest.TestCase):
         self.assertEqual(game.get_moves(game.get_piece((2, 0))), [
             (2, 1), (1, 1), (3, 1)
         ])
-    
+        self.assertEqual(game.get_moves(game.get_piece((3, 0))), [
+            (4, 1)
+        ])
+        self.assertEqual(game.get_moves(game.get_piece((0, 4))), [
+            (1, 5)
+        ])
+
     def test_rock_moves(self) -> None:
         game = BaseGame(0)
         game.create_board([

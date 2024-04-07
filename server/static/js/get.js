@@ -6,6 +6,6 @@ async function GET_request(url_string, data) {
 }
 
 
-async function api(method, data) {
+async function Api_request(method, data) {
     return await GET_request(`/api/${method}`, data);
 }
